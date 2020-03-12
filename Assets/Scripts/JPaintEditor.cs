@@ -19,7 +19,7 @@ public class JPaintEditor : EditorWindow
         {
             GameObject main = CreateObj(_jPaintName);
             main.AddComponent<JLibrary.Paint.JPaint>();
-
+         
             GameObject camera = CreateObj(_jCanvasCamera);
             SetCamera(camera);
             SetParent(main, camera);
@@ -30,7 +30,9 @@ public class JPaintEditor : EditorWindow
 
             GameObject paintObjs = CreateObj(_jPaintObj);
             SetParent(main, paintObjs);
+            paintObjs.transform.position = Vector3.forward;
 
+            main.transform.position = Vector3.right * 10;
         }
 
     }

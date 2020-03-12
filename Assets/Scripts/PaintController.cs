@@ -21,9 +21,8 @@ public class PaintController : MonoBehaviour
                 Debug.DrawLine(ray.origin, hit.point);
 
                 hit.collider.GetComponent<Renderer>().material.mainTexture = _jpaint.RendererTexture;
-                _jpaint.Paint(hit, 0,Color.blue);
+                _jpaint.Paint(hit, 0,Color.blue,0.5f);
             }
         }
-
     }
 }

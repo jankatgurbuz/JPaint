@@ -8,7 +8,6 @@ namespace JLibrary.Paint
     public class JPaint : MonoBehaviour
     {
         [SerializeField] private Vector2Int _textureSize;
-        private Material _paintMaterial;
         [SerializeField] private SpriteRenderer[] _brushList;
         [SerializeField] private string[] _paintTag = null;
 
@@ -17,6 +16,7 @@ namespace JLibrary.Paint
         private Transform _jCamera, _jPlane, _jPaintObjs;
         private Camera _camera;
         private PaintPooling _paintPooling;
+        private Material _paintMaterial;
 
         private const string _paintMaterialName = "PaintMaterial";
         private const int _totalPaintObj = 1000;
@@ -34,14 +34,11 @@ namespace JLibrary.Paint
 
             _jCamera = FindChild("JCamera");
             _jPlane = FindChild("JPlane");
-            _jPaintObjs = FindChild("JPaintObjs");
+            _jPaintObjs = FindChild("JPaintObj");
 
             _camera = _jCamera.GetComponent<Camera>();
         }
-        private Transform FindChild(string childName)
-        {
-            return transform.Find(childName);
-        }
+        private Transform FindChild(string childName) => transform.Find(childName);
 
         private void CreateRendererTexture()
         {
@@ -87,21 +84,30 @@ namespace JLibrary.Paint
         }
         public Transform CreatePaintObj(GameObject obj) => Instantiate(obj, Vector3.zero, Quaternion.identity).transform;
 
-        public void Paint(RaycastHit hit, int whichBrush,Color whichColor)
+        public void Paint(RaycastHit hit, int whichBrush,Color whichColor,float brushSize)
         {
             if (hit.collider != null && TagControl(hit))
             {
                 if (FindUVPosition(hit, out Vector3 pos))
                 {
+                 
                     (PaintPooling.Pooling p, bool saveControl) = _paintPooling.BringGameObj();
                     SetBrush(p.ObjSpriteRenderer, whichBrush);
                     SetColor(p.ObjSpriteRenderer, whichColor);
+                    SetBrushSize(p.PointObj, brushSize);
                     SetPaintPos(p.PointObj.transform, pos);
                     if (saveControl)
                         StartCoroutine(SaveTexture());
                 }
             }
         }
+
+        private void SetBrushSize(GameObject obj, float size)
+        {
+            size = Mathf.Clamp(size,0,float.MaxValue);
+            obj.transform.localScale = new Vector3(size, size, 1);
+        }
+
         private void SetColor(SpriteRenderer spr, Color whichColor) => spr.color = whichColor;
         private void SetBrush(SpriteRenderer spr, int whichBrush)
         {
@@ -135,7 +141,6 @@ namespace JLibrary.Paint
         private void SetPaintPos(Transform obj, Vector3 vec)
         {
             obj.localPosition = vec;
-            obj.localScale = Vector3.one * 1;
         }
         public IEnumerator SaveTexture()
         {
